@@ -104,7 +104,17 @@ public class GenerateAST {
         writer.println();
         writer.println("    @Override");
         writer.println("    public String toString() {");
-        writer.println("      return \"" + className + "\";");
+        // implement a toString() method that returns the class name and the fields
+        writer.print("      return \"" + className + "(\"");
+        for (int i = 0; i < fields.length; i++) {
+            String[] parts = fields[i].trim().split(" ");
+            String name = parts[1];
+            writer.print(" + " + name + " + ");
+            if (i < fields.length - 1) {
+                writer.print("\", \"");
+            }
+        }
+        writer.println("\")\";");
         writer.println("    }");
         writer.println("  }");
     }

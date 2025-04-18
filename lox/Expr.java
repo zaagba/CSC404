@@ -30,7 +30,7 @@ abstract class Expr {
 
     @Override
     public String toString() {
-      return "Binary";
+      return "Binary(" + left + ", " + operator + ", " + right + ")";
     }
   }
   static class Grouping extends Expr {
@@ -47,7 +47,7 @@ abstract class Expr {
 
     @Override
     public String toString() {
-      return "Grouping";
+      return "Grouping(" + expression + ")";
     }
   }
   static class Literal extends Expr {
@@ -64,7 +64,7 @@ abstract class Expr {
 
     @Override
     public String toString() {
-      return "Literal";
+      return "Literal(" + value + ")";
     }
   }
   static class Unary extends Expr {
@@ -83,7 +83,7 @@ abstract class Expr {
 
     @Override
     public String toString() {
-      return "Unary";
+      return "Unary(" + operator + ", " + right + ")";
     }
   }
 
