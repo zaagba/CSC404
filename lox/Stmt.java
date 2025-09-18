@@ -13,6 +13,7 @@ abstract class Stmt {
     R visitPrintStmt(Print stmt);
     R visitWhileStmt(While stmt);
     R visitVarStmt(Var stmt);
+    R visitBreakStmt(Break stmt);
   }
   static class Block extends Stmt {
     Block(List<Stmt> statements) {
@@ -122,6 +123,23 @@ abstract class Stmt {
     @Override
     public String toString() {
       return "Var(" + name + ", " + initializer + ")";
+    }
+  }
+  static class Break extends Stmt {
+    Break(Token keyword) {
+      this.keyword = keyword;
+    }
+
+    @Override
+    <R> R accept(Visitor<R> visitor) {
+      return visitor.visitBreakStmt(this);
+    }
+
+    final Token keyword;
+
+    @Override
+    public String toString() {
+      return "Break(" + keyword + ")";
     }
   }
 

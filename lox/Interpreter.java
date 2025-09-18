@@ -4,7 +4,7 @@ import java.util.List;
 
 public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {  
     private Environment environment = new Environment();
-
+    private boolean breaking = false;
     void interpret(List<Stmt> statements) {
         try {
             for (Stmt statement : statements) {
@@ -169,7 +169,17 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
     public Void visitWhileStmt(Stmt.While stmt) {
         while (isTruthy(evaluate(stmt.condition))) {
             execute(stmt.body);
+            if (breaking) {
+                breaking = false;
+                break;
+            }
         }
+        return null;
+    }
+
+    @Override
+    public Void visitBreakStmt(Stmt.Break stmt) {
+        breaking = true;
         return null;
     }
 
