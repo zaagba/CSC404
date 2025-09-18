@@ -5,6 +5,7 @@ import java.util.Map;
 
 public class Environment {
     private final Environment enclosing;
+    private static final Object UNINITIALIZED = new Object();
     private final Map<String, Object> values = new HashMap<>();
 
     Environment() {
@@ -42,5 +43,7 @@ public class Environment {
 
         throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
     }
-
+    static Object uninitialized() {
+        return UNINITIALIZED;
+    }
 }
