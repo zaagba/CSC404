@@ -7,11 +7,12 @@ import java.util.List;
 
 public class GenerateAST {
     public static void main(String[] args) throws IOException {
-        if (args.length != 1) {
+        /*if (args.length != 1) {
             System.err.println("Usage: GenerateAST <output directory>");
             System.exit(64);
         }
-        String outputDir = args[0];
+            */
+        String outputDir = "/home/bootlick/Documents/CSC 404/Crafting Interpreters Code/mywork-crafting-interpreters-ch9/mywork-crafting-interpreters/lox";
 
         defineAst(outputDir, "Expr", Arrays.asList(
                 "Assign   : Token name, Expr value",
@@ -29,7 +30,8 @@ public class GenerateAST {
                 "If         : Expr condition, Stmt thenBranch, Stmt elseBranch",
                 "Print      : Expr expression",
                 "While      : Expr condition, Stmt body",
-                "Var        : Token name, Expr initializer"
+                "Var        : Token name, Expr initializer",
+                "Break       : Token keyword"
         ));
     }
 

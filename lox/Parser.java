@@ -10,6 +10,7 @@ public class Parser {
 
     private final List<Token> tokens;
     private int current = 0;
+    private int breakCount = 0;
 
     Parser(List<Token> tokens) {
         this.tokens = tokens;
@@ -71,7 +72,13 @@ public class Parser {
         }
         consume(RIGHT_PAREN, "Expect ')' after for clauses.");
 
-        Stmt body = statement();
+        Stmt body;
+        try {
+            breakCount++;
+            body = statement();
+        } finally {
+            breakCount--;
+        }
 
         if (increment != null) {
             body = new Stmt.Block(Arrays.asList(body, new Stmt.Expression(increment)));
@@ -123,14 +130,24 @@ public class Parser {
         consume(LEFT_PAREN, "Expect '(' after 'while'.");
         Expr condition = expression();
         consume(RIGHT_PAREN, "Expect ')' after condition.");
-
-        Stmt body = statement();
-        return new Stmt.While(condition, body);
+        try {
+            breakCount++;
+            Stmt body = statement();
+            return new Stmt.While(condition, body);
+        } finally {
+            breakCount--;
+        }
+        //Stmt body = statement();
+        //return new Stmt.While(condition, body);
     }
 
     private Stmt breakStatement() {
+        Token breakToken = previous();
+        if (breakCount == 0) {
+            error(breakToken, "Cannot use 'break' outside of a loop.");
+        }
         consume(TokenType.SEMICOLON, "Expect ';' after break.");
-        return new Stmt.Break();
+        return new Stmt.Break(breakToken);
     }
     
     private Stmt expressionStatement() {

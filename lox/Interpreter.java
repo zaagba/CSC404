@@ -120,6 +120,7 @@ public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {
 
             for (Stmt statement : statements) {
                 execute(statement);
+                if (breaking) break;
             }
         } finally {
             this.environment = previous;    // restore
