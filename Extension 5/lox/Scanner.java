@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import static lox.TokenType.*;
 
 public class Scanner {
@@ -33,6 +32,7 @@ public class Scanner {
         keywords.put("true", TRUE);
         keywords.put("var", VAR);
         keywords.put("while", WHILE);
+        keywords.put("break", BREAK);
     }
 
     Scanner(String source) {
@@ -54,6 +54,8 @@ public class Scanner {
         switch (c) {    
             case '(' -> addToken(LEFT_PAREN);                       // .nah.   updated switch syntax 
             case ')' -> addToken(RIGHT_PAREN);
+            case '[' -> addToken(LEFT_BRACKET);
+            case ']' -> addToken(RIGHT_BRACKET);
             case '{' -> addToken(LEFT_BRACE);
             case '}' -> addToken(RIGHT_BRACE);
             case ',' -> addToken(COMMA);
@@ -71,27 +73,7 @@ public class Scanner {
                 if (match('/')) {
                     // A comment goes until the end of the line.
                     while (peek() != '\n' && !isAtEnd()) advance();
-                } else if (match('*')) {
-                    // advance --> need a var to keep track of how many blocks so far?
-                    int blockSoFar = 1; // already at one block comment
-                    while(!isAtEnd()) {
-                        if (peek() == '/' && peekNext() == '*') { // another block, increment bSF
-                            blockSoFar++;
-                            advance(); // take *
-                            advance(); // take /
-
-                        }  else if (peek() == '*' && peekNext() == '/'){ // end of block, decrement bSF
-                            blockSoFar--;
-                            advance(); // take *
-                            advance(); // take /
-                        }  if (peek() == '\n') {
-                            line++;
-                        } if (blockSoFar == 0) break; // if all blocks closed, exit loop
-                        advance(); // keep going through the comment
-                    } 
-
-                }
-                 else {
+                } else {
                     addToken(SLASH);
                 }
             }
