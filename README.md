@@ -1,4 +1,4 @@
-# Extension Project 3: Break Statements
+# Extension Project 3: Break Statements and Uninitialized Variables
 
 For this extension project, I implemented functioning break statements, which exit a loop when called.
 
@@ -46,6 +46,7 @@ Output:
       - Since it's a keyword, we add it to keyword Map in the Scanner:
 
       - ```java
+        
         private static final Map<String, TokenType> keywords;
         static {
         ...
@@ -81,14 +82,14 @@ Output:
             Break(Token keyword) {
               this.keyword = keyword;
             }
-        
+          
             @Override
             <R> R accept(Visitor<R> visitor) {
               return visitor.visitBreakStmt(this);
             }
-        
+          
             final Token keyword;
-        
+          
             @Override
             public String toString() {
               return "Break(" + keyword + ")";
@@ -112,12 +113,10 @@ Output:
         
         ...
         ```
-
-          
-
-      - Next, we wire up break as a statement:
-
-      - ```java
+        
+- Next, we wire up break as a statement:
+      
+- ```java
             private Stmt statement() {
                 if (match(FOR)) return forStatement();
                 if (match(IF)) return ifStatement();
@@ -129,10 +128,10 @@ Output:
             }
         
         ```
-
-      - Next, we add break functionality into our native looping statements:
-
-      - ```java
+      
+- Next, we add break functionality into our native looping statements:
+      
+- ```java
             private Stmt forStatement() {
                ...
                 Stmt body;
@@ -147,10 +146,10 @@ Output:
             }
         
         ```
-
-      - The BreakStatement() itself follows the logic we outlined previously:
-
-      - ```java
+      
+- The BreakStatement() itself follows the logic we outlined previously:
+      
+- ```java
             private Stmt breakStatement() {
                 Token breakToken = previous();
                 if (breakCount == 0) {
@@ -160,30 +159,29 @@ Output:
                 return new Stmt.Break(breakToken);
             }
         ```
-
-      - Finally, we can implement our break methods into our interpreter. To begin, I created another breaking field that is a boolean:
-
-      - ```java
+      
+- Finally, we can implement our break methods into our interpreter. To begin, I created another breaking field that is a boolean:
+      
+- ```java
         public class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void> {  
             private Environment environment = new Environment();
             *private boolean breaking = false;*
         ...
         ```
-
-      - We can also implement our visitBreakStatement():
-
-      - ```java
+      
+- We can also implement our visitBreakStatement():
+      
+- ```java
             @Override
             public Void visitBreakStmt(Stmt.Break stmt) {
                 breaking = true;
                 return null;
             }
         ```
-
-      - All this does is set our breaking flag to true
-
-      - Now, we can edit our executeBlock() method to account for the fact that breaks may be called during statements:
-
+      
+- All this does is set our breaking flag to true
+      
+- Now, we can edit our executeBlock() method to account for the fact that breaks may be called during statements:
         ```java
             void executeBlock(List<Stmt> statements, Environment environment) {
                 Environment previous = this.environment;
@@ -200,10 +198,10 @@ Output:
             }
         
         ```
-
-      - Finally, we can edit our visitWhileStatement() to break if breaking is true, and we're done!
-
-      - ```java
+      
+- Finally, we can edit our visitWhileStatement() to break if breaking is true, and we're done!
+      
+- ```java
             @Override
             public Void visitWhileStmt(Stmt.While stmt) {
                 while (isTruthy(evaluate(stmt.condition))) {
@@ -216,8 +214,8 @@ Output:
                 return null;
             }
         ```
-
-      - Now that everything is wired up, breaks are implemented into Lox!
+      
+- Now that everything is wired up, breaks are implemented into Lox!
 
 
 
@@ -248,3 +246,50 @@ Output:
   0
   ```
 
+
+
+### Uninitialized Variables
+
+Additionally, I implemented runtime errors when uninitialized variables are called.
+
+```java
+Example Program (from book):
+// No initializers.
+var a;
+var b;
+
+a = "assigned";
+print a; // OK, was assigned first.
+
+print b; // Error!
+
+OUTPUT:
+'ERROR: b is not intialized!'
+
+```
+
+- To implement this, I modified the code in the following way:
+
+  - All I did was edit the get method in the environment class, so that when Lox checks values that were initialized, it can output an error if a given variable had an uninitialized name:
+
+  - In Enviornment.java:
+
+    - ```java
+          Object get(Token name) {
+              if (values.containsKey(name.lexeme)) {
+                 * // check for unintialized var (UNINITIALIZED)
+                  Object value = values.get(name.lexeme);
+                  if (value == UNINITIALIZED) {
+                      throw new RuntimeError(name, name.lexeme + " not initialized!");
+                  }*
+                  return values.get(name.lexeme);
+              }
+      
+              if (enclosing != null) { return enclosing.get(name); }
+      
+              throw new RuntimeError(name, "Undefined variable '" + name.lexeme + "'.");
+          }
+      
+      ```
+
+    - With this simple addition, a runtime error would occur when an uninitialized variable was used in a program. 

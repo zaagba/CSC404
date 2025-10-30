@@ -22,6 +22,11 @@ public class Environment {
 
     Object get(Token name) {
         if (values.containsKey(name.lexeme)) {
+            // check for unintialized var (UNINITIALIZED)
+            Object value = values.get(name.lexeme);
+            if (value == UNINITIALIZED) {
+                throw new RuntimeError(name, name.lexeme + " not initialized!");
+            }
             return values.get(name.lexeme);
         }
 
